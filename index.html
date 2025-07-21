@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SCADA Demo with Drag (Fixed)</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+  <div class="scada-container" id="scada-container">
+    <img src="2.png" class="scada-bg" />
+    <div class="sensor" id="sensor1" style="top: 20%; left: 35%;">流量: 8.2 L/min</div>
+    <div class="sensor" id="sensor2" style="top: 50%; left: 50%;">溫度: 45°C</div>
+    <div class="sensor" id="sensor3" style="top: 75%; left: 70%;">壓力: 3.1 bar</div>
+  </div>
+
+  <script>
+    const sensors = document.querySelectorAll('.sensor');
+    const container = document.getElementById('scada-container');
+
+    sensors.forEach(sensor => {
+      sensor.addEventListener('pointerdown', pointerDown);
+
+      function pointerDown(e) {
+        e.preventDefault();
+        sensor.setPointerCapture(e.pointerId);
+
+        const containerRect = container.getBoundingClientRect();
+
+        function moveHandler(e) {
+          const x = e.clientX - containerRect.left;
+          const y = e.clientY - containerRect.top;
+          const percentX = (x / container.offsetWidth) * 100;
+          const percentY = (y / container.offsetHeight) * 100;
+          sensor.style.left = percentX + '%';
+          sensor.style.top = percentY + '%';
+        }
+
+        function upHandler() {
+          sensor.removeEventListener('pointermove', moveHandler);
+          sensor.removeEventListener('pointerup', upHandler);
+        }
+
+        sensor.addEventListener('pointermove', moveHandler);
+        sensor.addEventListener('pointerup', upHandler);
+      }
+    });
+
+    // 模擬資料更新
+    setInterval(() => {
+      document.getElementById('sensor1').textContent = '流量: ' + (6 + Math.random() * 4).toFixed(1) + ' L/min';
+      document.getElementById('sensor2').textContent = '溫度: ' + (40 + Math.random() * 10).toFixed(1) + '°C';
+      document.getElementById('sensor3').textContent = '壓力: ' + (2.5 + Math.random()).toFixed(2) + ' bar';
+    }, 2000);
+  </script>
+</body>
+</html>
